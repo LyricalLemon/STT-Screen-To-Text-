@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-- Add functionality to capture portion of the screen. 
+- Need to make screen darker when capturing and leave captured portion still 'Bright'
 
 ## [1.0.3] - 2025-11-23
 ### Added
