@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - Add functionality to capture portion of the screen. 
 
+## [1.0.3] - 2025-11-23
+### Added
+- Added ability to capture portion of the screen and Improved UI. 
+
 ## [1.0.2] - 2025-11-23
 ### Added
 - Added simple Tkinter GUI. Still captures the entire screen so output is messy. 
