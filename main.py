@@ -101,7 +101,32 @@ def perform_ocr(x1, y1, x2, y2):
         status_label.config(text="STATUS: Processing...", fg="orange")
         root.update()
 
-        text = pytesseract.image_to_string(img)
+        # --- SAFELY OPTIMIZED PROCESSING ---
+        
+        # A. Grayscale (Essential for OCR)
+        img = img.convert('L')
+        
+        # B. Upscaling (The 'I' fix)
+        # We double the size so Tesseract can see the "serifs" on the 'I' better
+        width, height = img.size
+        img = img.resize((width * 2, height * 2), Image.Resampling.LANCZOS)
+
+        # --- END OPTIMIZATIONS ---
+
+        # D. Configuration
+        # --psm 6 assumes a single block of text
+        custom_config = r'--psm 6'
+        
+        text = pytesseract.image_to_string(img, config=custom_config)
+
+        # E. Post-Processing String Repairs
+        # Since we removed the harsh visual filter, we rely on this for the last 1% of errors
+        text = text.replace('|', 'I') 
+        
+        # Fix: Sometimes "I" is read as "1" or "l"
+        # We only replace " 1 " if it has spaces, to avoid messing up numbers like 100
+        text = text.replace(' 1 ', ' I ') 
+        text = text.replace(' l ', ' I ')
 
         result_text.delete(1.0, tk.END)
         if text.strip():
@@ -143,7 +168,7 @@ h_scroll = tk.Scrollbar(text_frame, orient=tk.HORIZONTAL)
 # 4. Text Widget
 # wrap="none" is crucial for the horizontal scrollbar to work. 
 # If you want words to wrap automatically, change to wrap="word" (but h_scroll won't do much)
-result_text = tk.Text(text_frame, font=("Arial", 12), wrap="word",
+result_text = tk.Text(text_frame, font=("Arial", 12), wrap="none",
                       yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
 
 # 5. Link Scrollbars to Text

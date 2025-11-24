@@ -2,7 +2,13 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-- Add ability to export to .txt, .csv and other popular formats. Figure out how to clean up obvious mistakes in captured text, perhaps a post-processing phase? 
+ - Add ability to export to .txt, .csv and other popular formats. 
+ - Add ability to upload images, parse text and output to user.
+ - Add auto-copy/copy-to-clipboard feature to automate process faster
+
+## [v1.6] - 2025-11-24
+### Added
+- Added a optimisation phase cleaning up obvious mistakes via upscaling & greyscaling. Added string-repair as sometimes 'I' was read as '1' or 'l' or '|'
 
 ## [v1.5] - 2025-11-22
 ### Added
