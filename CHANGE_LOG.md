@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
  - Add ability to export to .txt, .csv and other popular formats. 
  - Add ability to upload images, parse text and output to user.
- - Add auto-copy/copy-to-clipboard feature to automate process faster
+ - Add a clear symbols button to delete obvious irrelevant symbols next to words. 
+ - Update GUI to add buttons to: export, wrap text, clean up symbols etc...
+
+## [v1.7] - 2025-11-24
+### Added
+- Added auto copy-to-clipboard feature with handy pop-up box to verify that copying was successful.
 
 ## [v1.6] - 2025-11-24
 ### Added

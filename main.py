@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import scrolledtext
 import pytesseract
 from PIL import Image, ImageGrab, ImageTk, ImageEnhance
 import time
@@ -82,6 +83,36 @@ class SnippingTool:
         self.overlay.destroy()
         self.parent.deiconify()
 
+# --- HELPER FUNCTIONS ---
+
+def show_fading_popup(message):
+    """Creates a small borderless window centered inside the Main GUI."""
+    popup = tk.Toplevel(root)
+    popup.overrideredirect(True) # Remove borders
+    
+    # 1. Define Popup Size
+    popup_w = 200
+    popup_h = 50
+    
+    # 2. Get Main Window (Root) Position & Size
+    # We use winfo_x/y/width/height to get the dynamic current state
+    root_x = root.winfo_x()
+    root_y = root.winfo_y()
+    root_w = root.winfo_width()
+    root_h = root.winfo_height()
+    
+    # 3. Calculate Center Position relative to the Main Window
+    x = root_x + (root_w // 2) - (popup_w // 2)
+    y = root_y + (root_h // 2) - (popup_h // 2)
+    
+    popup.geometry(f"{popup_w}x{popup_h}+{x}+{y}")
+    popup.configure(bg="#333333")
+    
+    lbl = tk.Label(popup, text=message, fg="white", bg="#333333", font=("Aptos", 12, "bold"))
+    lbl.pack(expand=True)
+    
+    # Schedule destruction after 1.5 seconds
+    popup.after(2200, popup.destroy)
 
 # --- MAIN LOGIC ---
 
@@ -102,29 +133,16 @@ def perform_ocr(x1, y1, x2, y2):
         root.update()
 
         # --- SAFELY OPTIMIZED PROCESSING ---
-        
-        # A. Grayscale (Essential for OCR)
         img = img.convert('L')
-        
-        # B. Upscaling (The 'I' fix)
-        # We double the size so Tesseract can see the "serifs" on the 'I' better
         width, height = img.size
         img = img.resize((width * 2, height * 2), Image.Resampling.LANCZOS)
-
         # --- END OPTIMIZATIONS ---
 
-        # D. Configuration
-        # --psm 6 assumes a single block of text
         custom_config = r'--psm 6'
-        
         text = pytesseract.image_to_string(img, config=custom_config)
 
-        # E. Post-Processing String Repairs
-        # Since we removed the harsh visual filter, we rely on this for the last 1% of errors
+        # String Repairs
         text = text.replace('|', 'I') 
-        
-        # Fix: Sometimes "I" is read as "1" or "l"
-        # We only replace " 1 " if it has spaces, to avoid messing up numbers like 100
         text = text.replace(' 1 ', ' I ') 
         text = text.replace(' l ', ' I ')
 
@@ -132,6 +150,13 @@ def perform_ocr(x1, y1, x2, y2):
         if text.strip():
             result_text.insert(tk.END, text)
             status_label.config(text="STATUS: Finished (Text Detected)", fg="green")
+            
+            # --- CLIPBOARD & POPUP ---
+            root.clipboard_clear()
+            root.clipboard_append(text)
+            root.update() # Required to finalize clipboard update
+            show_fading_popup("Copied to Clipboard")
+            
         else:
             result_text.insert(tk.END, "No text detected.")
             status_label.config(text="STATUS: Finished (No Text Detected)", fg="red")
@@ -145,7 +170,7 @@ def perform_ocr(x1, y1, x2, y2):
 
 root = tk.Tk()
 root.title("SST - Screen To Text")
-root.geometry("600x400") # Increased default size slightly
+root.geometry("600x400")
 
 # 1. Top Control Frame
 top_frame = tk.Frame(root)
@@ -157,7 +182,7 @@ btn_capture.pack(side=tk.LEFT)
 status_label = tk.Label(top_frame, text="STATUS: Ready...", fg="black", font=("Arial", 12, "bold"))
 status_label.pack(side=tk.RIGHT)
 
-# 2. Text Area Frame (Holds Text + Scrollbars)
+# 2. Text Area Frame
 text_frame = tk.Frame(root)
 text_frame.pack(padx=10, pady=(0, 10), fill=tk.BOTH, expand=True)
 
@@ -166,16 +191,13 @@ v_scroll = tk.Scrollbar(text_frame, orient=tk.VERTICAL)
 h_scroll = tk.Scrollbar(text_frame, orient=tk.HORIZONTAL)
 
 # 4. Text Widget
-# wrap="none" is crucial for the horizontal scrollbar to work. 
-# If you want words to wrap automatically, change to wrap="word" (but h_scroll won't do much)
-result_text = tk.Text(text_frame, font=("Arial", 12), wrap="none",
-                      yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
+result_text = tk.Text(text_frame, font=("Arial", 12), wrap="none", yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
 
-# 5. Link Scrollbars to Text
+# 5. Link Scrollbars
 v_scroll.config(command=result_text.yview)
 h_scroll.config(command=result_text.xview)
 
-# 6. Pack everything (Order matters for scrollbars)
+# 6. Pack
 v_scroll.pack(side=tk.RIGHT, fill=tk.Y)
 h_scroll.pack(side=tk.BOTTOM, fill=tk.X)
 result_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
