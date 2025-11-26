@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
  - Add ability to upload images, parse text and output to user.
  - Add a clear symbols button to delete obvious irrelevant symbols next to words. 
  - Update GUI to add buttons to: export, wrap text, clean up symbols etc...
- - Add button to delete irrelevant white space. 
+ - Add button to delete irrelevant white space.
+ - Add ability to automatically scroll up, down, left or right when selecting text.
 
 ## [v1.8] - 2025-11-26
 ### Added
