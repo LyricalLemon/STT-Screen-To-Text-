@@ -6,7 +6,7 @@ import time
 
 # --- CONFIGURATION ---
 # Windows users: Uncomment and point to your tesseract.exe
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Noah.Dias\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 class SnippingTool:
     def __init__(self, parent, callback):
@@ -114,6 +114,22 @@ def show_fading_popup(message):
     # Schedule destruction after 1.5 seconds
     popup.after(2200, popup.destroy)
 
+def delete_prev_word(event):
+    text_widget = event.widget
+    # Current cursor position
+    cursor_pos = text_widget.index("insert")
+
+    # Find the start of the previous word
+    # "insert wordstart" jumps to the beginning of the word you're currently in.
+    # "insert -1c wordstart" jumps to the start of the previous word.
+    prev_word_start = text_widget.index("insert -1c wordstart")
+
+    # Delete from previous word start to current cursor
+    text_widget.delete(prev_word_start, cursor_pos)
+
+    # Prevent the default behavior
+    return "break"
+
 # --- MAIN LOGIC ---
 
 def start_snipping():
@@ -170,7 +186,7 @@ def perform_ocr(x1, y1, x2, y2):
 
 root = tk.Tk()
 root.title("SST - Screen To Text")
-root.geometry("600x400")
+root.geometry("1000x500")
 
 # 1. Top Control Frame
 top_frame = tk.Frame(root)
@@ -191,7 +207,13 @@ v_scroll = tk.Scrollbar(text_frame, orient=tk.VERTICAL)
 h_scroll = tk.Scrollbar(text_frame, orient=tk.HORIZONTAL)
 
 # 4. Text Widget
-result_text = tk.Text(text_frame, font=("Arial", 12), wrap="none", yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
+result_text = tk.Text(text_frame, font=("Arial", 12), wrap="none",
+                      undo=True, autoseparators=True, maxundo=-1,
+                      yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
+
+result_text.bind("<Control-BackSpace>", delete_prev_word) # Custom Ctrl+Backspace
+result_text.bind("<Control-z>", lambda e: (result_text.edit_undo(), "break")) # Undo
+result_text.bind("<Control-y>", lambda e: (result_text.edit_redo(), "break")) # Redo
 
 # 5. Link Scrollbars
 v_scroll.config(command=result_text.yview)
