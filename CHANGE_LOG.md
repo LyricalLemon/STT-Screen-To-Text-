@@ -6,13 +6,14 @@ All notable changes to this project will be documented in this file.
  - Add ability to upload images, parse text and output to user.
  - Add a clear symbols button to delete obvious irrelevant symbols next to words. 
  - Update GUI to add buttons to: export, wrap text, clean up symbols etc...
- - Add button to delete irrelevant white space.
  - Add ability to automatically scroll up, down, left or right when selecting text.
  - Add Text customisation for Bold, Italic, Underline, colour, size, upper case, lower case, maybe font.
 
 ## [v1.8] - 2025-11-26
 ### Added
 - Added ability to ctrl+backspace, ctrl+z, ctrl+y to delete previous word, undo and redo actions respectively
+- Added button to remove empty lines in text. 
+- Updated Status label to acknowledge undo & redo commands.
 
 ## [v1.7] - 2025-11-24
 ### Added

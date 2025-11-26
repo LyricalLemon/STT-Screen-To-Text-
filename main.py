@@ -6,7 +6,7 @@ import time
 
 # --- CONFIGURATION ---
 # Windows users: Uncomment and point to your tesseract.exe
-pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Noah.Dias\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 class SnippingTool:
     def __init__(self, parent, callback):
@@ -129,6 +129,48 @@ def delete_prev_word(event):
 
     # Prevent the default behavior
     return "break"
+def undo_text(event=None):
+    try:
+        result_text.edit_undo()
+        status_label.config(text="STATUS: Undo Successful", fg="Green")
+    except tk.TclError:
+        # This error happens if the undo stack is empty
+        status_label.config(text="STATUS: Nothing to Undo", fg="red")
+    
+    return "break" # Prevents default behavior overlap
+
+def redo_text(event=None):
+    try:
+        result_text.edit_redo()
+        status_label.config(text="STATUS: Redo Successful", fg="Green")
+    except tk.TclError:
+        # This might not throw an error on all systems, but good to catch just in case
+        status_label.config(text="STATUS: Nothing to Redo", fg="red")
+        
+    return "break"
+
+def remove_whitespace():
+    """Removes empty lines (double newlines) from the text box."""
+    # 1. Get all text from the widget
+    # "end-1c" prevents grabbing the extra newline Tkinter adds automatically
+    content = result_text.get("1.0", "end-1c")
+    
+    if not content.strip():
+        status_label.config(text="STATUS: No text to clean.")
+        return
+
+    # 2. Filter out empty lines
+    # Split the text into a list of lines, keep only those that have characters
+    lines = [line for line in content.splitlines() if line.strip()]
+    
+    # 3. Join them back together with a single newline
+    cleaned_content = "\n".join(lines)
+    
+    # 4. Update the Text Widget
+    result_text.delete("1.0", tk.END)
+    result_text.insert(tk.END, cleaned_content)
+    
+    status_label.config(text="STATUS: White space removed.")
 
 # --- MAIN LOGIC ---
 
@@ -195,7 +237,22 @@ top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
 btn_capture = tk.Button(top_frame, text="Capture", command=start_snipping, font=("Arial", 12, "bold"))
 btn_capture.pack(side=tk.LEFT)
 
-status_label = tk.Label(top_frame, text="STATUS: Ready...", fg="black", font=("Arial", 12, "bold"))
+# --- NEW IMAGE BUTTON ---
+# 1. Load the image
+# Make sure "assets" folder is in the same folder as your script
+original_icon = Image.open("STT-Screen-To-Text-/assets/RemoveWhiteLineslogo.png")
+
+# 2. Resize it (25x25 is good for a standard button height)
+resized_icon = original_icon.resize((25, 25), Image.Resampling.LANCZOS)
+icon_clean = ImageTk.PhotoImage(resized_icon)
+
+# 3. Create Button
+# Note: We must keep a reference to the image (icon_clean) or Python will delete it!
+btn_clean = tk.Button(top_frame, image=icon_clean, command=remove_whitespace)
+btn_clean.image = icon_clean # Keep a reference preventing garbage collection
+btn_clean.pack(side=tk.LEFT, padx=10)
+
+status_label = tk.Label(top_frame, text="STATUS: Ready...", fg="#4682B4", font=("Arial", 12, "bold"))
 status_label.pack(side=tk.RIGHT)
 
 # 2. Text Area Frame
@@ -212,8 +269,8 @@ result_text = tk.Text(text_frame, font=("Arial", 12), wrap="none",
                       yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
 
 result_text.bind("<Control-BackSpace>", delete_prev_word) # Custom Ctrl+Backspace
-result_text.bind("<Control-z>", lambda e: (result_text.edit_undo(), "break")) # Undo
-result_text.bind("<Control-y>", lambda e: (result_text.edit_redo(), "break")) # Redo
+result_text.bind("<Control-z>", undo_text) # Undo
+result_text.bind("<Control-y>", redo_text) # Redo
 
 # 5. Link Scrollbars
 v_scroll.config(command=result_text.yview)
