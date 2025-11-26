@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
  - Update GUI to add buttons to: export, wrap text, clean up symbols etc...
  - Add button to delete irrelevant white space.
  - Add ability to automatically scroll up, down, left or right when selecting text.
+ - Add Text customisation for Bold, Italic, Underline, colour, size, upper case, lower case, maybe font.
 
 ## [v1.8] - 2025-11-26
 ### Added
