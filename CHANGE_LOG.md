@@ -8,7 +8,8 @@ All notable changes to this project will be documented in this file.
  - Update GUI to add buttons to: export, wrap text, clean up symbols etc...
  - Add ability to automatically scroll up, down, left or right when selecting text.
  - Add Text customisation for Bold, Italic, Underline, colour, size, upper case, lower case, maybe font.
- - Add Warning Message to user explaining text captured is never 100% accurate so can make mistakes.
+ - Add Warning Message to user explaining text captured is never 100% accurate so can make mistakes.#
+ - Update Redo & Undo methods so that we can handle data manipulation like undoing/redoing removing white space, capitalising, bold etc.
 
 ## [v1.8] - 2025-11-26
 ### Added
