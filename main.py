@@ -46,7 +46,7 @@ class SnippingTool:
         self.start_y = event.y
         self.rect = self.canvas.create_rectangle(
             self.start_x, self.start_y, self.start_x, self.start_y, 
-            outline='white', width=2
+            outline='orange', width=2
         )
 
     def on_move_press(self, event):
@@ -171,6 +171,56 @@ def remove_whitespace():
     result_text.insert(tk.END, cleaned_content)
     
     status_label.config(text="STATUS: White space removed.")
+    
+def change_text_case(case_type):
+    """
+    Changes text to Upper or Lower case.
+    Applies to SELECTION if it exists, otherwise applies to ALL text.
+    """
+    try:
+        # 1. Check if there is a selection
+        # If no selection, this line throws a TclError, sending us to the 'except' block
+        start_index = result_text.index("sel.first")
+        end_index = result_text.index("sel.last")
+        target = "selection"
+    except tk.TclError:
+        # 2. No selection? Target the whole document
+        start_index = "1.0"
+        # end-1c avoids the final newline character
+        end_index = "end-1c" 
+        target = "all"
+
+    # 3. Get the text
+    content = result_text.get(start_index, end_index)
+    
+    if not content.strip():
+        status_label.config(text="STATUS: No text to change.", fg="red")
+        return
+
+    # 4. Transform it
+    if case_type == "upper":
+        new_content = content.upper()
+        status_label.config(text="STATUS: Converted to UPPER CASE.", fg="green")
+    else:
+        new_content = content.lower()
+        status_label.config(text="STATUS: Converted to LOWER CASE.", fg="green")
+
+    # 5. Replace text safely
+    # We use the Undo/Redo stack separator so this action can be undone with Ctrl+Z
+    result_text.edit_separator() 
+    result_text.delete(start_index, end_index)
+    result_text.insert(start_index, new_content)
+    result_text.edit_separator()
+
+    # 6. Restore selection (Optional, but nice UX)
+    if target == "selection":
+        result_text.tag_add("sel", start_index, f"{start_index}+{len(new_content)}c")
+
+def to_upper():
+    change_text_case("upper")
+
+def to_lower():
+    change_text_case("lower")
 
 # --- MAIN LOGIC ---
 
@@ -234,23 +284,47 @@ root.geometry("1000x500")
 top_frame = tk.Frame(root)
 top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
 
-btn_capture = tk.Button(top_frame, text="Capture", command=start_snipping, font=("Arial", 12, "bold"))
-btn_capture.pack(side=tk.LEFT)
+# --- BUTTON IMAGES ---
+# --- HELPER TO LOAD ICONS ---
+def load_icon(path):
+    img = Image.open(path)
+    img = img.resize((25, 25), Image.Resampling.LANCZOS)
+    return ImageTk.PhotoImage(img)
 
-# --- NEW IMAGE BUTTON ---
-# 1. Load the image
-# Make sure "assets" folder is in the same folder as your script
-original_icon = Image.open("STT-Screen-To-Text-/assets/RemoveWhiteLineslogo.png")
+# --- 1. CAPTURE BUTTON ---
+# Update path to your capture image
+icon_capture = load_icon("STT-Screen-To-Text-/assets/CaptureButtonLogo.png") 
+btn_capture = tk.Button(top_frame, image=icon_capture, command=start_snipping)
+btn_capture.image = icon_capture
+btn_capture.pack(side=tk.LEFT, padx=(0, 10)) # Add padding only to the right
 
-# 2. Resize it (25x25 is good for a standard button height)
-resized_icon = original_icon.resize((25, 25), Image.Resampling.LANCZOS)
-icon_clean = ImageTk.PhotoImage(resized_icon)
-
-# 3. Create Button
-# Note: We must keep a reference to the image (icon_clean) or Python will delete it!
+# --- 2. REMOVE WHITESPACE BUTTON ---
+icon_clean = load_icon("STT-Screen-To-Text-/assets/RemoveWhiteLineslogo.png")
 btn_clean = tk.Button(top_frame, image=icon_clean, command=remove_whitespace)
-btn_clean.image = icon_clean # Keep a reference preventing garbage collection
-btn_clean.pack(side=tk.LEFT, padx=10)
+btn_clean.image = icon_clean
+btn_clean.pack(side=tk.LEFT, padx=(0, 10))
+
+# --- 3. UPPERCASE BUTTON ---
+# Update path to your uppercase image (e.g., a big 'T')
+icon_upper = load_icon("STT-Screen-To-Text-/assets/UpperCaseButtonLogo.png") 
+btn_upper = tk.Button(top_frame, image=icon_upper, command=to_upper)
+btn_upper.image = icon_upper
+btn_upper.pack(side=tk.LEFT, padx=(0, 10))
+
+# --- 4. LOWERCASE BUTTON ---
+# Update path to your lowercase image (e.g., a small 't')
+icon_lower = load_icon("STT-Screen-To-Text-/assets/LowerCaseButtonLogo.png") 
+btn_lower = tk.Button(top_frame, image=icon_lower, command=to_lower)
+btn_lower.image = icon_lower
+btn_lower.pack(side=tk.LEFT)
+
+# --- STT WINDOW ICON ---
+stt_icon_path = "STT-Screen-To-Text-/assets/STTLogo.png"
+img = Image.open(stt_icon_path)
+img = img.resize((64, 54), Image.Resampling.LANCZOS)
+stt_app_icon = ImageTk.PhotoImage(img)
+root.iconphoto(False, stt_app_icon)
+root.app_icon = stt_app_icon
 
 status_label = tk.Label(top_frame, text="STATUS: Ready...", fg="#4682B4", font=("Arial", 12, "bold"))
 status_label.pack(side=tk.RIGHT)

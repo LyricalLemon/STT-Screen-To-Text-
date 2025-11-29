@@ -5,11 +5,15 @@ All notable changes to this project will be documented in this file.
  - Add ability to export to .txt, .csv and other popular formats. 
  - Add ability to upload images, parse text and output to user.
  - Add a clear symbols button to delete obvious irrelevant symbols next to words. 
- - Update GUI to add buttons to: export, wrap text, clean up symbols etc...
  - Add ability to automatically scroll up, down, left or right when selecting text.
- - Add Text customisation for Bold, Italic, Underline, colour, size, upper case, lower case, maybe font.
- - Add Warning Message to user explaining text captured is never 100% accurate so can make mistakes.#
+ - Add Warning Message to user explaining text captured is never 100% accurate so can make mistakes.
  - Update Redo & Undo methods so that we can handle data manipulation like undoing/redoing removing white space, capitalising, bold etc.
+
+## [v1.9] - 2025-11-29
+### Added
+- Replaced capture button with actual button icon.
+- Added Capatilise & Uncapitalise buttons with custom icons.
+- Added Custom STT Icon instead of Tkinter default feather icon. 
 
 ## [v1.8] - 2025-11-26
 ### Added
