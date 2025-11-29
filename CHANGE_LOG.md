@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
  - Add ability to automatically scroll up, down, left or right when selecting text.
  - Add Warning Message to user explaining text captured is never 100% accurate so can make mistakes.
  - Update Redo & Undo methods so that we can handle data manipulation like undoing/redoing removing white space, capitalising, bold etc.
+ - Convert application into a full stand-alone executable that anyone can run on any platform.
 
 ## [v1.9] - 2025-11-29
 ### Added
