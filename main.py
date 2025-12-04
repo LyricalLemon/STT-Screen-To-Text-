@@ -339,8 +339,8 @@ h_scroll = tk.Scrollbar(text_frame, orient=tk.HORIZONTAL)
 
 # 4. Text Widget
 result_text = tk.Text(text_frame, font=("Arial", 12), wrap="none",
-                      undo=True, autoseparators=True, maxundo=-1,
-                      yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
+undo=True, autoseparators=True, maxundo=-1,
+yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
 
 result_text.bind("<Control-BackSpace>", delete_prev_word) # Custom Ctrl+Backspace
 result_text.bind("<Control-z>", undo_text) # Undo
